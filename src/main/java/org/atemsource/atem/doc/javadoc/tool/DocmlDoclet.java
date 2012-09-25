@@ -34,6 +34,7 @@ package org.atemsource.atem.doc.javadoc.tool;
  */
 
 import com.sun.javadoc.*;
+import com.sun.tools.doclets.standard.Standard;
 import com.sun.tools.internal.xjc.runtime.JAXBContextFactory;
 
 import java.io.File;
@@ -51,14 +52,34 @@ import org.atemsource.atem.doc.javadoc.model.FieldDescription;
 
 public class DocmlDoclet {
 
+	/**
+	 * Option check, forwards options to the standard doclet, if that one
+	 * refuses them, they are sent to UmlGraph
+	 */
+	public static int optionLength(String option) {
+		int result = Standard.optionLength(option);
+		if (result != 0)
+			return result;
+		else
+			return -1;
+	}
 
-	
+	/**
+	 * Standand doclet entry
+	 * 
+	 * @return
+	 */
+	public static LanguageVersion languageVersion() {
+		return Standard.languageVersion();
+	}
+
 	public static boolean start(RootDoc root) throws JAXBException {
 		Options options = getOptions(root);
-		JAXBContext jaxbContext = JAXBContext.newInstance(ClassDescription.class,FieldDescription.class);
+		JAXBContext jaxbContext = JAXBContext.newInstance(
+				ClassDescription.class, FieldDescription.class);
 		Marshaller marshaller = jaxbContext.createMarshaller();
 		for (ClassDoc classDoc : root.classes()) {
-			ClassDescription classDescription= new ClassDescription();
+			ClassDescription classDescription = new ClassDescription();
 			classDescription.setName(classDoc.qualifiedTypeName());
 			classDescription.setDescription(classDoc.commentText());
 			if (classDoc.isEnum()) {
@@ -67,15 +88,16 @@ public class DocmlDoclet {
 				}
 			}
 			for (FieldDoc fieldDoc : classDoc.fields()) {
-				FieldDescription fieldDescription= new FieldDescription();
+				FieldDescription fieldDescription = new FieldDescription();
 				fieldDescription.setName(fieldDoc.name());
 				fieldDescription.setDescription(fieldDoc.commentText());
 				classDescription.addField(fieldDescription);
 			}
-			String file=classDoc.qualifiedTypeName().replace(".", "/")+".docml";
-			
-			File docFile = new File(options.getOutputDirectory(),file);
-			if (docFile.exists()&& docFile.isDirectory() ) {
+			String file = classDoc.qualifiedTypeName().replace(".", "/")
+					+ ".docml";
+
+			File docFile = new File(options.getOutputDirectory(), file);
+			if (docFile.exists() && docFile.isDirectory()) {
 				docFile.delete();
 			}
 			docFile.getParentFile().mkdirs();
@@ -87,20 +109,10 @@ public class DocmlDoclet {
 
 	public static Options getOptions(RootDoc root) {
 		Options options = new Options();
-		String destination=System.getProperty("docml.destination");
-		if (destination==null) {
-			throw new IllegalArgumentException("destintation is not provided");
-		}
-		options.setOutputDirectory(new File(destination));
-
 
 		String[][] optionArray = root.options();
 		for (int opt = 0; opt < optionArray.length; opt++) {
 			if (optionArray[opt][0].compareToIgnoreCase("-d") == 0) {
-				options.setOutputDirectory(new File(optionArray[opt][1]));
-
-			}else
-			if (optionArray[opt][0].compareToIgnoreCase("-targetpath") == 0) {
 				options.setOutputDirectory(new File(optionArray[opt][1]));
 
 			}

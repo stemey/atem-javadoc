@@ -18,6 +18,10 @@
 	<import resource="classpath:/atem/javadoc/javadoc.xml" />
 	<import resource="classpath:/atem/pojo/entitytype.xml" />
 
+	<bean id="atem-javadoc-example-repository" parent="abstract-atem-scanned-pojo-repository">
+		<property name="includedPackage" value="de.test" />
+	</bean>
+
 	<bean id="atem-repository" init-method="init"
 		class="org.atemsource.atem.impl.common.EntityTypeRepositoryImpl">
 		<property name="repositories">
@@ -30,9 +34,6 @@
 		</property>
 	</bean>
 
-	<bean id="atem-javadoc-example-repository" parent="abstract-atem-scanned-pojo-repository">
-		<property name="includedPackage" value="de.test" />
-	</bean>
 
 
 

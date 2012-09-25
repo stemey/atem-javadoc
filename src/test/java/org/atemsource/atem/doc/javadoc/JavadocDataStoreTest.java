@@ -28,7 +28,8 @@ public class JavadocDataStoreTest {
 		EntityType<DomainA> entityType = entityTypeRepository.getEntityType(DomainA.class);
 		EntityType<EntityType> entityTypeEntityType = entityTypeRepository.getEntityType(EntityType.class);
 		
-		ClassDescription classDescription = (ClassDescription) entityTypeEntityType.getMetaAttribute(JavadocDataStore.META_ATTRIBUTE_CODE).getValue(entityType);
+		Attribute metaAttribute = entityTypeEntityType.getMetaAttribute(JavadocDataStore.META_ATTRIBUTE_CODE);
+		ClassDescription classDescription = (ClassDescription) metaAttribute.getValue(entityType);
 		Assert.assertNotNull(classDescription);
 		Assert.assertNotNull(classDescription.getDescription());
 	}
