@@ -15,7 +15,9 @@ import javax.xml.bind.JAXBException;
 import org.atemsource.atem.api.EntityTypeRepository;
 import org.atemsource.atem.api.attribute.Attribute;
 import org.atemsource.atem.api.attribute.relation.SingleAttribute;
+import org.atemsource.atem.api.extension.EntityTypeRepositoryPostProcessor;
 import org.atemsource.atem.api.extension.MetaAttributeService;
+import org.atemsource.atem.api.infrastructure.exception.TechnicalException;
 import org.atemsource.atem.api.service.AttributeQuery;
 import org.atemsource.atem.api.service.FindByAttributeService;
 import org.atemsource.atem.api.service.FindByTypedIdService;
@@ -25,22 +27,19 @@ import org.atemsource.atem.api.type.EntityType;
 import org.atemsource.atem.doc.javadoc.model.ClassDescription;
 import org.atemsource.atem.doc.javadoc.model.FieldDescription;
 import org.atemsource.atem.impl.meta.EntityTypeSubrepository;
+import org.atemsource.atem.impl.meta.MetaAttribute;
+import org.atemsource.atem.impl.meta.MetaDataService;
 import org.atemsource.atem.spi.EntityTypeCreationContext;
 
-public class JavadocDataStore implements MetaDataService, MetaAttributeService {
+public class JavadocDataStore implements MetaDataService,
+		EntityTypeRepositoryPostProcessor, MetaAttributeService {
 
 	private Map<String, ClassDescription> entityTypeData = new HashMap<String, ClassDescription>();
-
-	@PostConstruct
-	public void initialize() throws JAXBException {
-		context = JAXBContext.newInstance(ClassDescription.class,
-				FieldDescription.class);
-	}
 
 	private JAXBContext context;
 
 	@Override
-	public Object getMetaData(Object targetEntity, XmlMetaAttribute attribute) {
+	public Object getMetaData(Object targetEntity, MetaAttribute attribute) {
 		// TODO Auto-generated method stub
 
 		// attribute is the attribute in The xml object referencing the object
@@ -76,7 +75,7 @@ public class JavadocDataStore implements MetaDataService, MetaAttributeService {
 
 	private void load(EntityType entityType) {
 		URL resource = getClass().getResource(
-				"/"+entityType.getCode().replace(".", "/") + ".docml");
+				"/" + entityType.getCode().replace(".", "/") + ".docml");
 		File file = new File(resource.getFile());
 		if (file.exists()) {
 			ClassDescription object;
@@ -98,33 +97,33 @@ public class JavadocDataStore implements MetaDataService, MetaAttributeService {
 		return null;
 	}
 
-	@Override
-	public <J> SingleAttribute<J> getMetaAttribute(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object getMetaData(String name, Object holder) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public static final String META_ATTRIBUTE_CODE = "javadocDescription";
 
 	@Override
 	public void initialize(EntityTypeCreationContext ctx) {
-		EntityType attributeType = ctx.getEntityTypeReference(Attribute.class);
-		EntityType entityType = ctx.getEntityTypeReference(EntityType.class);
-		EntityType fieldDescription = ctx
-				.getEntityTypeReference(FieldDescription.class);
-		EntityType classDescription = ctx
-				.getEntityTypeReference(ClassDescription.class);
-		XmlMetaAttribute attributeDescription = new XmlMetaAttribute(
-				attributeType, fieldDescription, this, META_ATTRIBUTE_CODE);
-		XmlMetaAttribute entityTypeDescription = new XmlMetaAttribute(
-				entityType, classDescription, this, META_ATTRIBUTE_CODE);
-		ctx.addMetaAttribute(entityType, entityTypeDescription);
-		ctx.addMetaAttribute(attributeType, attributeDescription);
+		try {
+			context = JAXBContext.newInstance(ClassDescription.class,
+					FieldDescription.class);
+			EntityType attributeType = ctx.getEntityTypeReference(Attribute.class);
+			EntityType entityType = ctx.getEntityTypeReference(EntityType.class);
+			EntityType fieldDescription = ctx
+					.getEntityTypeReference(FieldDescription.class);
+			EntityType classDescription = ctx
+					.getEntityTypeReference(ClassDescription.class);
+			MetaAttribute attributeDescription = new MetaAttribute(attributeType,
+					fieldDescription, this, META_ATTRIBUTE_CODE);
+			MetaAttribute entityTypeDescription = new MetaAttribute(entityType,
+					classDescription, this, META_ATTRIBUTE_CODE);
+			ctx.addMetaAttribute(entityType, entityTypeDescription);
+			ctx.addMetaAttribute(attributeType, attributeDescription);
+		} catch (JAXBException e) {
+			throw new TechnicalException("errors with xml binding",e);
+		}
+
+	}
+
+	@Override
+	public void setMetaData(Object entity, Object value, MetaAttribute attribute) {
+		throw new UnsupportedOperationException("cannot be modified");
 	}
 }
