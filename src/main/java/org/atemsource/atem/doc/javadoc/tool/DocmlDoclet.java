@@ -1,47 +1,9 @@
 package org.atemsource.atem.doc.javadoc.tool;
 
-/*
- * File: JELDoclet.java
- * Purpose: A Doclet to be used with JavaDoc which will output XML with all of the information
- *    from the JavaDoc.
- * Date: Mar 2nd, 2003
- * 
- * History:
- * 		Sep 14th, 2005 - Updated by TP to allow multiple file output.
- * 					   - Added support for exceptions.
- * 					   - Added support for a few missing method modifiers (final, etc).
- *                     - Added support for xml namespaces.
- *                     
- *    Dec 8/9th, 2005 - updated by T.Zwolsky (all extensions marked thz.../thz):
- *      - added cmdline parameter -outputEncoding
- *      - bugfix: implements/interface node(s) were created but not inserted into class node
- *      - added exception comment (both here and in the xsd as optional element)
- *      - added cmdline parameter -filename
- *      - added output directory check
- *      - added some comments to readme
- *      - added test target in build.xml
- *      - added nested class in test classes (test/MyInterClass.java)
- *      - added xsl transformation jel2html.xsl
- *      
- *      Dec 16th, 2005 - updated by T.Zwolsky (all extensions marked thz.../thz):
- *      - added version here and in xsd
- *      - added admin stuff in xsd
- * 
- * Author: Jack D. Herrington <jack_d_herrington@codegeneration.net>
- * 		   Toby Patke 		  <toby_patke _?_ hotmail.com>
- * 
- * This source is covered by the Open Software Licenses (1.1)
- */
-
-import com.sun.javadoc.*;
-import com.sun.tools.doclets.standard.Standard;
-import com.sun.tools.internal.xjc.runtime.JAXBContextFactory;
-
 import java.io.File;
-import java.io.Writer;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -49,6 +11,17 @@ import javax.xml.bind.Marshaller;
 import org.atemsource.atem.doc.javadoc.Options;
 import org.atemsource.atem.doc.javadoc.model.ClassDescription;
 import org.atemsource.atem.doc.javadoc.model.FieldDescription;
+import org.atemsource.atem.doc.javadoc.model.MethodDescription;
+import org.atemsource.atem.doc.javadoc.model.ParamDescription;
+
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.FieldDoc;
+import com.sun.javadoc.LanguageVersion;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.ParamTag;
+import com.sun.javadoc.Parameter;
+import com.sun.javadoc.RootDoc;
+import com.sun.tools.doclets.standard.Standard;
 
 public class DocmlDoclet {
 
@@ -92,6 +65,24 @@ public class DocmlDoclet {
 				fieldDescription.setName(fieldDoc.name());
 				fieldDescription.setDescription(fieldDoc.commentText());
 				classDescription.addField(fieldDescription);
+			}
+			for (MethodDoc methodDoc : classDoc.methods()) {
+				MethodDescription methodDescription = new MethodDescription();
+				methodDescription.setName(methodDoc.name());
+				methodDescription.setDescription(methodDoc.commentText());
+				Map<String,ParamDescription> nameToParam = new HashMap<String,ParamDescription>();
+				for (Parameter parameter:methodDoc.parameters()) {
+					ParamDescription paramDescription=new ParamDescription();
+					paramDescription.setName(parameter.name());
+					methodDescription.addParameter(paramDescription);
+					nameToParam.put(parameter.name(), paramDescription);
+				}
+				for(ParamTag paramTag:methodDoc.paramTags()) {
+					ParamDescription paramDescription = nameToParam.get(paramTag.parameterName());
+				paramDescription.setDescription(paramTag.parameterComment());
+				}
+				
+				classDescription.addMethod(methodDescription);
 			}
 			String file = classDoc.qualifiedTypeName().replace(".", "/")
 					+ ".docml";
