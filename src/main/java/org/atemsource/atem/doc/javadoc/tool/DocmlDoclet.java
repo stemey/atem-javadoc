@@ -1,21 +1,5 @@
 package org.atemsource.atem.doc.javadoc.tool;
 
-
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
-import org.atemsource.atem.doc.javadoc.Options;
-import org.atemsource.atem.doc.javadoc.model.ClassDescription;
-import org.atemsource.atem.doc.javadoc.model.FieldDescription;
-import org.atemsource.atem.doc.javadoc.model.MethodDescription;
-import org.atemsource.atem.doc.javadoc.model.ParamDescription;
-
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.LanguageVersion;
@@ -24,6 +8,17 @@ import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.RootDoc;
 import com.sun.tools.doclets.standard.Standard;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import org.atemsource.atem.doc.javadoc.Options;
+import org.atemsource.atem.doc.javadoc.model.ClassDescription;
+import org.atemsource.atem.doc.javadoc.model.FieldDescription;
+import org.atemsource.atem.doc.javadoc.model.MethodDescription;
+import org.atemsource.atem.doc.javadoc.model.ParamDescription;
 
 
 public class DocmlDoclet
@@ -95,22 +90,28 @@ public class DocmlDoclet
 				fieldDescription.setDescription(fieldDoc.commentText());
 				classDescription.addField(fieldDescription);
 			}
-			for (MethodDoc methodDoc : classDoc.methods()) {
+			for (MethodDoc methodDoc : classDoc.methods())
+			{
 				MethodDescription methodDescription = new MethodDescription();
 				methodDescription.setName(methodDoc.name());
 				methodDescription.setDescription(methodDoc.commentText());
-				Map<String,ParamDescription> nameToParam = new HashMap<String,ParamDescription>();
-				for (Parameter parameter:methodDoc.parameters()) {
-					ParamDescription paramDescription=new ParamDescription();
+				Map<String, ParamDescription> nameToParam = new HashMap<String, ParamDescription>();
+				for (Parameter parameter : methodDoc.parameters())
+				{
+					ParamDescription paramDescription = new ParamDescription();
 					paramDescription.setName(parameter.name());
 					methodDescription.addParameter(paramDescription);
 					nameToParam.put(parameter.name(), paramDescription);
 				}
-				for(ParamTag paramTag:methodDoc.paramTags()) {
+				for (ParamTag paramTag : methodDoc.paramTags())
+				{
 					ParamDescription paramDescription = nameToParam.get(paramTag.parameterName());
-				paramDescription.setDescription(paramTag.parameterComment());
+					if (paramDescription != null)
+					{
+						paramDescription.setDescription(paramTag.parameterComment());
+					}
 				}
-				
+
 				classDescription.addMethod(methodDescription);
 			}
 			String file = classDoc.qualifiedTypeName().replace(".", "/") + ".docml";
