@@ -17,6 +17,7 @@
 
 	<import resource="classpath:/atem/javadoc/javadoc.xml" />
 	<import resource="classpath:/atem/pojo/entitytype.xml" />
+	<import resource="classpath:/atem/impl/method.xml" />
 
 	<bean id="atem-javadoc-example-repository" parent="abstract-atem-scanned-pojo-repository">
 		<property name="includedPackage" value="de.test" />
@@ -28,6 +29,7 @@
 			<list>
 				<ref bean="atem-attribute-repository" />
 				<ref bean="atem-entityType-repository" />
+				<ref bean="atem-method-repository" />
 				<ref bean="atem-javadoc-repository" />
 				<ref bean="atem-javadoc-example-repository" />
 			</list>

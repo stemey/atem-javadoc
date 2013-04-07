@@ -22,11 +22,8 @@
 		<property name="includedPackage" value="org.atemsource.atem.doc.javadoc.model" />
 	</bean>
 
-
 	<bean id="atem-javadocDataStore" class="org.atemsource.atem.doc.javadoc.JavadocDataStore">
 	</bean>
-
-
 
 
 </beans>

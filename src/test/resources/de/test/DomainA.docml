@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <class>
 <description>this is a special class.</description>
-<name>de.doclet.test.DomainA</name>
+<name>de.test.DomainA</name>
 <fields>
 <field><name>field1</name><description>this is a special field.</description></field>
 </fields>
+<methods>
+	<method>
+			<name>add</name>
+			<description>add something</description>
+			<parameters>
+					<parameter><name>the value</name><description>some value</description></parameter>
+			</parameters>
+	</method>
+</methods>
 </class>

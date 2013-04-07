@@ -19,5 +19,13 @@ public class DomainA {
 	 * a field in the domain Model
 	 */
 	private String field1;
+	
+	/**
+	 * a method
+	 * @param value a value
+	 */
+	public void add(String value) {
+		
+	}
 
 }
